@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show]
-  before_action :validate_user, only: [:create, :update, :destroy]
-  before_action :validate_type, only: [:create, :update]
+  before_action :set_user, only: %i[show update destroy]
+  before_action :validate_user, only: %i[create update destroy]
+  before_action :validate_type, only: %i[create update]
 
   def index
     users = User.all
@@ -21,6 +21,19 @@ class UsersController < ApplicationController
     else
       render_error(user, :unprocessable_entity)
     end
+  end
+
+  def update
+    if @user.update(user_params)
+      render json: @user, status: :ok
+    else
+      render_error(@user, :unprocessable_entity)
+    end
+  end
+
+  def destroy
+    @user.destroy
+    head 204
   end
 
   private

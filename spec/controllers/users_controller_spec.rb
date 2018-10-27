@@ -95,4 +95,35 @@ RSpec.describe UsersController, type: :controller do
       expect(jdata['data']['attributes']['full-name']).to eql 'Bob Roberts'
     end
   end
+
+  context 'with existing user' do
+    it 'updates user with valid data' do
+      @request.headers['Content-Type'] = 'application/vnd.api+json'
+      @request.headers['X-Api-Key'] = user.token
+      post :update, params: {
+        id: user.id,
+        data: {
+          id: user.id,
+          type: 'users',
+          attributes: {
+            full_name: 'Bob Rogers',
+            description: 'Normal User'
+          }
+        }
+      }
+      expect(response.status).to eq 200
+      jdata = JSON.parse response.body
+      expect(jdata['data']['attributes']['full-name']).to eql 'Bob Rogers'
+    end
+
+    it 'deletes user' do
+      user_count = User.count
+      @request.headers['X-Api-Key'] = user.token
+      delete :destroy, params: { id: User.first.id }
+      expect(response.status).to eq 204
+      expect(user_count).to eql User.count
+    end
+
+
+  end
 end
